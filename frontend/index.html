@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health AI Diagnostic Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f7ff; /* A very light, professional blue */
+        }
+        .gauge {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+        .gauge-bg {
+            fill: none;
+            stroke: #e2e8f0; /* Light gray background for the track */
+            stroke-width: 14;
+        }
+        .gauge-fill {
+            fill: none;
+            stroke: #0284c7; /* Sky blue for the gauge fill */
+            stroke-width: 14;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.5s ease-in-out, stroke 0.5s ease-in-out;
+            stroke-linecap: round;
+        }
+        .gauge-text {
+            font-size: 2rem;
+            font-weight: 700;
+            fill: #0c4a6e; /* Darker blue for text */
+        }
+        /* Corrected selector to target the div inside the label */
+        .symptom-checkbox:checked + label div {
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        /* Hide the plus icon when the checkbox is checked */
+        .symptom-checkbox:checked + label .plus-icon {
+            display: none;
+        }
+        /* Show the check icon when the checkbox is checked */
+        .symptom-checkbox:checked + label .check-icon {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600"><path d="M20.32 3.68A9.95 9.95 0 0 0 12 2a9.95 9.95 0 0 0-8.32 1.68"/><path d="M3.68 20.32A9.95 9.95 0 0 0 12 22a9.95 9.95 0 0 0 8.32-1.68"/><path d="M12 4v16"/><path d="M4 12h16"/></svg>
+                <h1 class="text-2xl font-bold text-slate-900">Health AI Dashboard</h1>
+            </div>
+        </header>
+
+        <main class="flex-grow p-4 md:p-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
+            
+            <!-- Left Panel: Patient Vitals & Risk Analysis -->
+            <div class="xl:col-span-3 bg-white p-6 rounded-2xl shadow-lg flex flex-col space-y-4 overflow-y-auto max-h-[90vh]">
+                <div>
+                    <h2 class="text-xl font-semibold mb-3 text-slate-700 flex items-center"><i data-lucide="user-round" class="mr-2"></i>Patient Vitals</h2>
+                     <div class="space-y-3">
+                        <input type="number" id="age" placeholder="Age" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <select id="sex" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Select Sex</option>
+                            <option value="1">Male</option>
+                            <option value="0">Female</option>
+                        </select>
+                        <input type="number" id="height" placeholder="Height (cm)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="weight" placeholder="Weight (kg)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <select id="smoker" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Are you a smoker?</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                         <select id="physical_activity" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Physical Activity Level</option>
+                            <option value="0">Low</option>
+                            <option value="1">Moderate</option>
+                             <option value="2">High</option>
+                        </select>
+                    </div>
+                </div>
+                <hr/>
+                 <div>
+                    <h3 class="text-lg font-semibold mb-2 text-slate-600 flex items-center"><i data-lucide="heart-pulse" class="mr-2"></i>Heart Disease Risk</h3>
+                     <div class="space-y-3">
+                        <input type="number" id="systolic_bp" placeholder="Systolic BP (e.g., 120)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="diastolic_bp" placeholder="Diastolic BP (e.g., 80)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="total_chol" placeholder="Total Cholesterol (e.g., 200)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="ldl_chol" placeholder="LDL Cholesterol (e.g., 100)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="hdl_chol" placeholder="HDL Cholesterol (e.g., 50)" class="w-full p-3 border rounded-lg bg-slate-50">
+                         <select id="family_history_heart" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Family history of heart disease?</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                         <select id="diet_heart" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Diet (Salt/Fat Intake)</option>
+                            <option value="1">High</option>
+                            <option value="0">Low/Moderate</option>
+                        </select>
+                    </div>
+                </div>
+                <hr/>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-slate-600 flex items-center"><i data-lucide="pipette" class="mr-2"></i>Diabetes Risk</h3>
+                    <div class="space-y-3">
+                        <input type="number" id="fasting_bs" placeholder="Fasting Glucose (e.g., 90)" class="w-full p-3 border rounded-lg bg-slate-50">
+                        <input type="number" id="hba1c" placeholder="HbA1c (e.g., 5.5)" class="w-full p-3 border rounded-lg bg-slate-50" step="0.1">
+                        <select id="family_history_diabetes" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Family history of diabetes?</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                        <select id="diet_diabetes" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Diet (Sugar/Carb Intake)</option>
+                            <option value="1">High</option>
+                            <option value="0">Low/Moderate</option>
+                        </select>
+                    </div>
+                </div>
+                <hr/>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-slate-600 flex items-center"><i data-lucide="filter" class="mr-2"></i>Kidney Disease Risk</h3>
+                    <div class="space-y-3">
+                        <input type="number" id="creatinine" placeholder="Serum Creatinine (e.g., 1.0)" class="w-full p-3 border rounded-lg bg-slate-50" step="0.1">
+                         <select id="protein_urine" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Protein in urine test?</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                         <select id="water_intake" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Daily Water Intake</option>
+                            <option value="0">Low</option>
+                            <option value="1">Moderate</option>
+                             <option value="2">High</option>
+                        </select>
+                        <select id="nsaid_use" class="w-full p-3 border rounded-lg bg-slate-50">
+                            <option value="" disabled selected>Regular NSAID use?</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2">
+                     <button id="predictHealthRiskBtn" class="w-full bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-700 transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                        <i data-lucide="shield-check"></i>
+                        <span>Analyze Health Risks</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Panel: Symptom Selection -->
+            <div class="xl:col-span-5 bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                <h2 class="text-xl font-semibold mb-4 text-slate-700 flex items-center"><i data-lucide="clipboard-check" class="mr-2"></i>Symptom Selector</h2>
+                <div class="mb-4">
+                    <input type="text" id="searchInput" placeholder="Search symptoms..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div id="symptomsGridContainer" class="flex-grow min-h-[400px] max-h-[65vh] overflow-y-auto p-2 border rounded-lg bg-slate-50">
+                    <div id="symptomsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                    <div id="loadingSymptoms" class="text-center p-4">Loading symptoms...</div>
+                </div>
+                <div class="pt-4">
+                    <button id="predictBtn" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition transform hover:scale-105 flex items-center justify-center space-x-2 disabled:bg-slate-400">
+                        <i data-lucide="brain-circuit"></i>
+                        <span>Diagnose from Symptoms</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Analysis & Results -->
+            <div class="xl:col-span-4 bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                <h2 class="text-xl font-semibold mb-4 text-slate-700 flex items-center"><i data-lucide="bar-chart-3" class="mr-2"></i>Diagnostic Results</h2>
+                <div id="resultsContainer" class="flex-grow flex flex-col items-center justify-center text-center space-y-4">
+                     <div id="predictionResult">
+                        <i data-lucide="file-search" class="w-16 h-16 mx-auto text-slate-300"></i>
+                        <p class="text-slate-500 mt-2">Results will be displayed here.</p>
+                     </div>
+                     <div id="healthRiskResult" class="w-full"></div>
+                </div>
+                <div id="errorMessage" class="mt-4 text-center text-red-600 font-semibold"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API_URL = 'http://127.0.0.1:5000'; 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const symptomsGrid = document.getElementById('symptomsGrid');
+            const searchInput = document.getElementById('searchInput');
+            const predictBtn = document.getElementById('predictBtn');
+            const predictionResult = document.getElementById('predictionResult');
+            const loadingSymptoms = document.getElementById('loadingSymptoms');
+            const predictHealthRiskBtn = document.getElementById('predictHealthRiskBtn');
+            const healthRiskResult = document.getElementById('healthRiskResult');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            let allSymptoms = [];
+
+            async function fetchSymptoms() {
+                try {
+                    const response = await fetch(`${API_URL}/symptoms`);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    allSymptoms = await response.json();
+                    displaySymptoms(allSymptoms);
+                    loadingSymptoms.style.display = 'none';
+                } catch (error) {
+                    console.error("Error fetching symptoms:", error);
+                    loadingSymptoms.innerHTML = `<p class="text-red-500">Could not load symptoms from server.</p>`;
+                }
+            }
+
+            function displaySymptoms(symptoms) {
+                symptomsGrid.innerHTML = '';
+                symptoms.forEach(symptom => {
+                    const symptomId = `symptom-${symptom.replace(/\s+/g, '-')}`;
+                    const symptomEl = document.createElement('div');
+                    const symptomName = symptom.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    symptomEl.innerHTML = `
+                        <input type="checkbox" id="${symptomId}" value="${symptom}" class="hidden symptom-checkbox">
+                        <label for="${symptomId}" class="block">
+                            <div class="flex items-center justify-between p-3 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:border-sky-400 transition">
+                                <span class="text-sm font-medium text-slate-700">${symptomName}</span>
+                                <div class="icon-container relative w-5 h-5">
+                                    <svg class="plus-icon absolute" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                    <svg class="check-icon absolute hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                </div>
+                            </div>
+                        </label>`;
+                    symptomsGrid.appendChild(symptomEl);
+                });
+            }
+
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                displaySymptoms(allSymptoms.filter(s => s.toLowerCase().replace(/_/g, ' ').includes(query)));
+            });
+
+            predictBtn.addEventListener('click', async () => {
+                const selectedSymptoms = Array.from(document.querySelectorAll('.symptom-checkbox:checked')).map(cb => cb.value);
+                if (selectedSymptoms.length === 0) {
+                    showError("Please select at least one symptom.");
+                    return;
+                }
+                predictBtn.disabled = true;
+                predictBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Analyzing...</span>`;
+                hideError();
+                try {
+                    const response = await fetch(`${API_URL}/predict`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ symptoms: selectedSymptoms })
+                    });
+                    if (!response.ok) throw new Error((await response.json()).error || 'Prediction failed');
+                    const predictions = await response.json();
+                    updateSymptomDashboard(predictions);
+                } catch (error) {
+                    showError(error.message);
+                } finally {
+                    predictBtn.disabled = false;
+                    predictBtn.innerHTML = `<i data-lucide="brain-circuit"></i><span>Diagnose from Symptoms</span>`;
+                    lucide.createIcons();
+                }
+            });
+
+            function getGaugeColor(prob) {
+                if (prob > 0.7) return '#ef4444'; // Red for high risk
+                if (prob > 0.4) return '#f59e0b'; // Amber for medium risk
+                return '#0284c7'; // Blue for low risk
+            }
+
+            function updateSymptomDashboard(predictions) {
+                healthRiskResult.innerHTML = ''; 
+                if (!predictions || predictions.length === 0) {
+                    predictionResult.innerHTML = '<p class="text-slate-500">No prediction could be made.</p>';
+                    return;
+                }
+                const topPrediction = predictions[0];
+                const prob = parseFloat(topPrediction.probability);
+                const diseaseName = topPrediction.disease.replace(/\^/g, ' ');
+                
+                predictionResult.innerHTML = createGaugeHTML('symptom', 'Top Match', diseaseName, prob) + 
+                    `${predictions.length > 1 ? `
+                        <div class="mt-4 w-full text-left">
+                            <h4 class="font-semibold text-slate-600 mb-2">Other Possibilities:</h4>
+                            <ul class="space-y-2">
+                                ${predictions.slice(1).map(p => `
+                                    <li class="flex justify-between items-center bg-slate-100 p-3 rounded-md">
+                                        <span class="text-sm font-medium">${p.disease.replace(/\^/g, ' ')}</span>
+                                        <span class="font-semibold text-sm text-slate-500">${Math.round(parseFloat(p.probability) * 100)}%</span>
+                                    </li>`).join('')}
+                            </ul>
+                        </div>` : ''}
+                    <p class="text-xs text-slate-400 mt-4 w-full">Disclaimer: This is not a medical diagnosis. Consult a professional.</p>`;
+                
+                animateGauge('symptom', prob);
+            }
+
+            function createGaugeHTML(id, title, subtitle, prob) {
+                const color = getGaugeColor(prob);
+                return `
+                    <div class="bg-slate-50 p-4 rounded-lg w-full text-center">
+                        <h3 class="font-semibold text-slate-600">${title}</h3>
+                        <p class="text-2xl font-bold my-1" style="color:${color};">${subtitle}</p>
+                        <div class="gauge mx-auto my-3">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                                <circle id="gauge-fill-${id}" class="gauge-fill" cx="50" cy="50" r="42" style="stroke: ${color};"></circle>
+                                <text class="gauge-text" x="50" y="50" alignment-baseline="middle" text-anchor="middle" style="fill: ${color};">${Math.round(prob * 100)}%</text>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-medium text-slate-500">Risk Score</p>
+                    </div>`;
+            }
+
+            function animateGauge(id, prob) {
+                 setTimeout(() => {
+                    const circle = document.getElementById(`gauge-fill-${id}`);
+                    if(circle) {
+                        const offset = 440 - (440 * prob);
+                        circle.style.strokeDashoffset = offset;
+                    }
+                }, 100);
+            }
+            
+            predictHealthRiskBtn.addEventListener('click', () => {
+                hideError();
+                predictionResult.innerHTML = '';
+                
+                // --- Get all values ---
+                const age = parseFloat(document.getElementById('age').value) || 0;
+                const sex = document.getElementById('sex').value;
+                const height = parseFloat(document.getElementById('height').value) || 0;
+                const weight = parseFloat(document.getElementById('weight').value) || 0;
+                const smoker = document.getElementById('smoker').value;
+                const physical_activity = document.getElementById('physical_activity').value;
+
+                const systolic_bp = parseFloat(document.getElementById('systolic_bp').value) || 0;
+                const diastolic_bp = parseFloat(document.getElementById('diastolic_bp').value) || 0;
+                const total_chol = parseFloat(document.getElementById('total_chol').value) || 0;
+                const ldl_chol = parseFloat(document.getElementById('ldl_chol').value) || 0;
+                const hdl_chol = parseFloat(document.getElementById('hdl_chol').value) || 0;
+                const family_history_heart = document.getElementById('family_history_heart').value;
+                const diet_heart = document.getElementById('diet_heart').value;
+                
+                const fasting_bs = parseFloat(document.getElementById('fasting_bs').value) || 0;
+                const hba1c = parseFloat(document.getElementById('hba1c').value) || 0;
+                const family_history_diabetes = document.getElementById('family_history_diabetes').value;
+                const diet_diabetes = document.getElementById('diet_diabetes').value;
+                
+                const creatinine = parseFloat(document.getElementById('creatinine').value) || 0;
+                const protein_urine = document.getElementById('protein_urine').value;
+                const water_intake = document.getElementById('water_intake').value;
+                const nsaid_use = document.getElementById('nsaid_use').value;
+
+                if (age === 0 || height === 0 || weight === 0 || sex === '') {
+                    showError("Please fill in all 'Patient Vitals' fields (Age, Sex, Height, Weight).");
+                    return;
+                }
+
+                const bmi = weight / ((height / 100) ** 2);
+                const has_hypertension = systolic_bp > 130 || diastolic_bp > 80;
+                const has_diabetes = fasting_bs > 125 || hba1c > 6.4;
+
+                const diabetesResult = calculateDiabetesRisk(age, bmi, fasting_bs, hba1c, physical_activity, family_history_diabetes, diet_diabetes);
+                const heartResult = calculateHeartRisk(age, sex, systolic_bp, diastolic_bp, total_chol, ldl_chol, hdl_chol, smoker, physical_activity, family_history_heart, diet_heart);
+                const kidneyResult = calculateKidneyRisk(age, has_diabetes, has_hypertension, creatinine, protein_urine, water_intake, nsaid_use);
+
+                healthRiskResult.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="text-center">Calculated BMI: <span class="font-bold">${bmi.toFixed(2)}</span></div>
+                        ${createGaugeHTML('diabetes', 'Diabetes Risk', diabetesResult.level, diabetesResult.prob)}
+                        ${createGaugeHTML('heart', 'Heart Disease Risk', heartResult.level, heartResult.prob)}
+                        ${createGaugeHTML('kidney', 'Kidney Disease Risk', kidneyResult.level, kidneyResult.prob)}
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4 w-full">Disclaimer: This is not a medical diagnosis. Consult a professional.</p>`;
+                
+                animateGauge('diabetes', diabetesResult.prob);
+                animateGauge('heart', heartResult.prob);
+                animateGauge('kidney', kidneyResult.prob);
+            });
+
+            function calculateDiabetesRisk(age, bmi, fbg, hba1c, activity, family_history, diet) {
+                let score = 0;
+                if (age > 45) score += 15; if (age > 60) score += 10;
+                if (bmi > 25) score += 10; if (bmi > 30) score += 15;
+                if (activity === '0') score += 15; // Low activity
+                if (family_history === '1') score += 15;
+                if (diet === '1') score += 10;
+                
+                // Lab results are strong indicators
+                if (fbg >= 100 && fbg <= 125) score += 20;
+                if (fbg > 125) score += 40;
+                if (hba1c >= 5.7 && hba1c <= 6.4) score += 25;
+                if (hba1c > 6.4) score += 45;
+
+                const prob = Math.min(score / 100, 0.99);
+                let level = "Low Risk";
+                if (prob > 0.7) level = "High Risk"; else if (prob > 0.4) level = "Medium Risk";
+                return { prob, level };
+            }
+
+            function calculateHeartRisk(age, sex, sys_bp, dia_bp, total_c, ldl_c, hdl_c, smoker, activity, family_history, diet) {
+                let score = 0;
+                // Age & Sex
+                if (sex === '1') { // Male
+                    if (age >= 45) score += 15; if (age >= 55) score += 10;
+                } else { // Female
+                    if (age >= 55) score += 15; if (age >= 65) score += 10;
+                }
+                // Vitals
+                if (sys_bp > 130 || dia_bp > 80) score += 15;
+                if (sys_bp > 140 || dia_bp > 90) score += 15;
+                // Cholesterol
+                if (total_c > 200) score += 10; if (ldl_c > 130) score += 10;
+                if (hdl_c < 40) score += 10; // Low HDL is a risk factor
+                // Lifestyle
+                if (smoker === '1') score += 20;
+                if (activity === '0') score += 10;
+                if (family_history === '1') score += 15;
+                if (diet === '1') score += 10;
+
+                const prob = Math.min(score / 100, 0.99);
+                let level = "Low Risk";
+                if (prob > 0.7) level = "High Risk"; else if (prob > 0.4) level = "Medium Risk";
+                return { prob, level };
+            }
+
+            function calculateKidneyRisk(age, has_diabetes, has_hypertension, creatinine, protein_urine, water, nsaid) {
+                let score = 0;
+                if (age > 60) score += 20;
+                
+                // Co-morbidities are major factors
+                if (has_diabetes) score += 30;
+                if (has_hypertension) score += 25;
+                
+                // Clinical signs
+                if (creatinine > 1.2) score += 25;
+                if (protein_urine === '1') score += 20;
+                
+                // Lifestyle
+                if (water === '0') score += 10; // Low water intake
+                if (nsaid === '1') score += 10;
+
+                const prob = Math.min(score / 100, 0.99);
+                let level = "Low Risk";
+                if (prob > 0.7) level = "High Risk"; else if (prob > 0.4) level = "Medium Risk";
+                return { prob, level };
+            }
+
+            function showError(message) { 
+                errorMessage.textContent = message;
+                resultsContainer.classList.add('border-2', 'border-red-400', 'rounded-lg', 'p-4');
+             }
+            function hideError() { 
+                errorMessage.textContent = '';
+                resultsContainer.classList.remove('border-2', 'border-red-400', 'rounded-lg', 'p-4');
+            }
+
+            fetchSymptoms();
+        });
+    </script>
+</body>
+</html>
+
