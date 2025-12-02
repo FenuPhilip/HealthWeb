@@ -1,5 +1,5 @@
 # HealthWeb
-# HealthWeb – Disease Prediction API
+# HealthWeb – Disease Prediction API 
 
 A simple Flask + Machine Learning system that predicts diseases from symptoms.
 _______________________________________________________________________________________________________________________
